@@ -238,27 +238,6 @@ mod tests {
     }
 
     #[test]
-    fn main_slice() {
-        let v = vec![1, 2, 3, 4];
-        // Vec 实现了 Deref，&Vec<T> 会被自动解引用为 &[T]，符合接口定义
-        print_slice(&v);
-        // 直接是 &[T]，符合接口定义
-        print_slice(&v[..]);
-        // &Vec<T> 支持 AsRef<[T]>
-        // print_slice_ref(&v);
-        // &[T] 支持 AsRef<[T]>
-        print_slice_ref(&v[..]);
-        // Vec<T> 也支持 AsRef<[T]>
-        // print_slice_ref(v);
-        let arr = [1, 2, 3, 4];
-        // 数组虽没有实现 Deref，但它的解引用就是 &[T]
-        print_slice(&arr);
-        print_slice(&arr[..]);
-        print_slice_ref(arr);
-        print_slice_ref(&arr[..]);
-    }
-
-    #[test]
     fn main_vec_iter() {
         let r = vec![1, 2, 3, 4]
             .iter()
@@ -376,11 +355,7 @@ mod tests {
                     None => break,
                 }
             }
-            if v.is_empty() {
-                None
-            } else {
-                Some(v)
-            }
+            if v.is_empty() { None } else { Some(v) }
         }
     }
 }

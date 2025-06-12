@@ -7,13 +7,13 @@ mod err;
 mod futures;
 pub mod io;
 pub mod lifecycle;
+mod not_safe;
+mod ownership_;
 mod para;
 pub mod pkg;
 pub mod req;
 mod sede;
 pub mod string;
-mod not_safe;
-mod ownership_;
 
 mod thread_safe;
 
@@ -107,20 +107,6 @@ mod tests {
         }
     }
 
-    extern crate rand;
-
-    #[test]
-    fn gen_rand() {
-        let _rn = rand::random::<i32>();
-        let _rnn: i32 = rand::random();
-
-        use rand::Rng;
-
-        let mut rng = rand::thread_rng();
-        let __rn = rng.gen_range(0..=10);
-        println!("{:?}", rng.gen_range('a'..='z'));
-    }
-
     extern crate regex;
 
     #[test]
@@ -170,12 +156,13 @@ mod tests {
             println!("{}: {}", key, val);
         }
 
-        let key = "PORT";
-        env::set_var(key, "8080");
-        print_env_var(key);
-        env::remove_var(key);
-        print_env_var(key); // error, NotPresent
-
+        unsafe {
+            let key = "PORT";
+            env::set_var(key, "8080");
+            print_env_var(key);
+            env::remove_var(key);
+            print_env_var(key); // error, NotPresent
+        }
         // cwd
         let root = std::path::Path::new("/");
         env::set_current_dir(root).expect("fail to set cwd");

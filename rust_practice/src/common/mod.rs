@@ -200,8 +200,6 @@ mod test_writer {
 #[cfg(test)]
 mod test_vec {
 
-    use rand::Rng;
-
     #[test]
     fn main() {
         let mut data: Vec<*const [u8]> = Vec::new();
@@ -209,7 +207,7 @@ mod test_vec {
         for _i in 0..5 {
             let mut num: Vec<u8> = Vec::new();
             for _j in 0..16 {
-                let rand_num: u8 = rand::thread_rng().gen();
+                let rand_num: u8 = rand::random();
                 num.push(rand_num);
             }
             println!("num({:p}) is : {:?}", &*num, num);
@@ -333,11 +331,7 @@ mod test_traitor {
                 None => {
                     let s = (*self.s).trim();
                     *self.s = "";
-                    if s.is_empty() {
-                        None
-                    } else {
-                        Some(s)
-                    }
+                    if s.is_empty() { None } else { Some(s) }
                 }
             }
         }
