@@ -1,0 +1,9 @@
+[tools]
+rust = "stable"
+
+[env]
+RUST_BACKTRACE = "1"
+'_'.file = ".env"
+
+[tasks.build]
+run = "cargo build --release"

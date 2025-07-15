@@ -1,7 +1,6 @@
 #![allow(dead_code)]
 
 mod tests {
-
     // 此消息用于发送到与「主组件」并行运行的其他组件。
     enum WorkMsg {
         Work(u8),
@@ -62,6 +61,23 @@ mod tests {
             }
         }
     }
+
+    #[test]
+    fn test2() {
+        use std::{
+            sync::{Arc, Mutex},
+            thread,
+        };
+
+        let v = Arc::new(Mutex::new(vec![1, 2, 3, 4, 5]));
+        for i in 0..3 {
+            let clone_v = v.clone();
+            thread::spawn(move || {
+                let mut tmp = clone_v.lock().unwrap();
+                tmp.push(i);
+            });
+        }
+    }
 }
 
 mod scopes {
@@ -97,5 +113,63 @@ mod scopes {
         .expect("A child thread panicked");
 
         println!("{:?}", vec);
+    }
+}
+
+mod atomics {
+
+    #[test]
+    fn spin_lock() {
+        use std::sync::atomic::{AtomicUsize, Ordering};
+        use std::sync::Arc;
+        use std::{thread, time};
+
+        let spin_lock = Arc::new(AtomicUsize::new(1));
+
+        let sp_clone = spin_lock.clone();
+        let thd = thread::spawn(move || {
+            // use SeqCst to ensure execute order
+            sp_clone.store(1, Ordering::SeqCst);
+            let t = time::Duration::from_secs(3);
+            thread::sleep(t);
+            sp_clone.store(0, Ordering::SeqCst);
+        });
+
+        // spin wait
+        while spin_lock.load(Ordering::SeqCst) != 0 {}
+
+        if let Err(e) = thd.join() {
+            println!("thread had an error: {:?}", e);
+        }
+    }
+
+    use core::sync::atomic::AtomicBool;
+    use std::sync::atomic::Ordering;
+
+    struct LightLock(AtomicBool);
+
+    impl LightLock {
+        pub fn new() -> LightLock {
+            LightLock(AtomicBool::new(false))
+        }
+
+        pub fn try_lock<'a>(&'a self) -> Option<LightGuard<'a>> {
+            let was_locked = self.0.swap(true, Ordering::Acquire);
+            if was_locked {
+                None
+            } else {
+                Some(LightGuard { lock: self })
+            }
+        }
+    }
+
+    struct LightGuard<'a> {
+        lock: &'a LightLock,
+    }
+
+    impl<'a> Drop for LightGuard<'a> {
+        fn drop(&mut self) {
+            self.lock.0.store(false, Ordering::Release);
+        }
     }
 }

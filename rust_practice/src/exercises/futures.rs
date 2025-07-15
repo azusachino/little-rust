@@ -151,29 +151,6 @@ mod tests {
         MyJoinHandle(handle)
     }
 
-    fn json2yaml(content: &str) -> Result<String> {
-        let val: Value = serde_json::from_str(content)?;
-        Ok(serde_yaml::to_string(&val)?)
-    }
-
-    #[test]
-    fn test_thread() {
-        let th1 = thread_read("src/exercises/futures.rs");
-        let th2 = thread_read("src/exercises/futures.rs");
-
-        let content1 = th1.thread_wait().unwrap();
-        let content2 = th2.thread_wait().unwrap();
-
-        let yaml1 = json2yaml(&content1).unwrap();
-        let yaml2 = json2yaml(&content2).unwrap();
-
-        let th3 = thread_write("src/exercises/futures.yaml", yaml1);
-        let th4 = thread_write("src/exercises/futures.yaml", yaml2);
-
-        let _ = th3.thread_wait().unwrap();
-        let _ = th4.thread_wait().unwrap();
-    }
-
     use blake3::{Hash, Hasher};
     use futures::{SinkExt, StreamExt};
     use rayon::prelude::*;
