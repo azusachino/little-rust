@@ -6,8 +6,6 @@ mod tests {
     use std::thread;
     use std::time::Duration;
 
-    use rand::Rng;
-
     #[test]
     fn main() {
         guess();
@@ -16,9 +14,10 @@ mod tests {
     }
 
     fn guess() {
+        use rand::Rng;
         println!("Guess the number!");
 
-        let secret_number = rand::thread_rng().gen();
+        let secret_number = rand::rng().random();
 
         loop {
             println!("Please input your guess.");

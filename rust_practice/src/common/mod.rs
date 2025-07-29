@@ -205,11 +205,12 @@ mod test_vec {
     #[test]
     fn main() {
         let mut data: Vec<*const [u8]> = Vec::new();
+        let mut rng: rand::prelude::ThreadRng = rand::rng();
 
         for _i in 0..5 {
             let mut num: Vec<u8> = Vec::new();
             for _j in 0..16 {
-                let rand_num: u8 = rand::thread_rng().gen();
+                let rand_num: u8 = rng.random();
                 num.push(rand_num);
             }
             println!("num({:p}) is : {:?}", &*num, num);

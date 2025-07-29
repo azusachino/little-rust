@@ -112,7 +112,7 @@ mod lifetimes {
     }
 
     impl<'b, 'a: 'b> Buffer<'a> {
-        fn new(b: &'a [u8]) -> Buffer {
+        fn new(b: &'a [u8]) -> Buffer<'a> {
             Buffer { buf: b, pos: 0 }
         }
 
@@ -285,19 +285,19 @@ mod generic {
     trait Trait {
         fn f(self);
     }
-    
+
     impl<T> Trait for fn(T) {
         fn f(self) {
             print!("1");
         }
     }
-    
+
     impl<T> Trait for fn(&T) {
         fn f(self) {
             print!("2");
         }
     }
-    
+
     #[test]
     fn main() {
         // 112

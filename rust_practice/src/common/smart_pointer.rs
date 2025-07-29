@@ -247,7 +247,7 @@ mod tests {
         // &Vec<T> 支持 AsRef<[T]>
         // print_slice_ref(&v);
         // &[T] 支持 AsRef<[T]>
-        print_slice_ref(&v[..]);
+        // print_slice_ref(&v[..]);
         // Vec<T> 也支持 AsRef<[T]>
         // print_slice_ref(v);
         let arr = [1, 2, 3, 4];
@@ -255,7 +255,7 @@ mod tests {
         print_slice(&arr);
         print_slice(&arr[..]);
         print_slice_ref(arr);
-        print_slice_ref(&arr[..]);
+        // print_slice_ref(&arr[..]);
     }
 
     #[test]

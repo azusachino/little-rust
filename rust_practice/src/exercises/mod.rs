@@ -7,13 +7,13 @@ mod err;
 mod futures;
 pub mod io;
 pub mod lifecycle;
+mod not_safe;
+mod ownership_;
 mod para;
 pub mod pkg;
 pub mod req;
 mod sede;
 pub mod string;
-mod not_safe;
-mod ownership_;
 
 mod thread_safe;
 
@@ -111,14 +111,14 @@ mod tests {
 
     #[test]
     fn gen_rand() {
-        let _rn = rand::random::<i32>();
-        let _rnn: i32 = rand::random();
-
         use rand::Rng;
 
-        let mut rng = rand::thread_rng();
-        let __rn = rng.gen_range(0..=10);
-        println!("{:?}", rng.gen_range('a'..='z'));
+        let _ = rand::random::<i32>();
+        let _: i32 = rand::random();
+
+        let mut rng = rand::rng();
+        let _ = rng.random_range(0..=10);
+        println!("{:?}", rng.random_range('a'..='z'));
     }
 
     extern crate regex;

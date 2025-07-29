@@ -151,78 +151,12 @@ mod tests {
         MyJoinHandle(handle)
     }
 
-    use blake3::{Hash, Hasher};
     use futures::{SinkExt, StreamExt};
     use rayon::prelude::*;
     use tokio::sync::{mpsc, oneshot};
     use tokio_util::codec::{Framed, LinesCodec};
 
     const PREFIX_ZERO: &[u8] = &[0, 0, 0];
-
-    pub fn pow(s: &str) -> Option<(String, u32)> {
-        let hasher = blake3_base_hash(s.as_bytes());
-        let nonce = (0..u32::MAX).into_par_iter().find_any(|n| {
-            let hash = blake3_hash(hasher.clone(), n).as_bytes().to_vec();
-            &hash[..PREFIX_ZERO.len()] == PREFIX_ZERO
-        });
-        nonce.map(|n| {
-            let hash = blake3_hash(hasher, &n).to_hex().to_string();
-            (hash, n)
-        })
-    }
-
-    fn blake3_hash(mut hasher: Hasher, nonce: &u32) -> Hash {
-        hasher.update(&nonce.to_le_bytes()[..]);
-        hasher.finalize()
-    }
-
-    fn blake3_base_hash(data: &[u8]) -> Hasher {
-        let mut hasher = Hasher::new();
-        hasher.update(data);
-        hasher
-    }
-
-    #[tokio::main]
-    async fn main1() -> Result<()> {
-        let addr = "0.0.0.0:8081";
-        let listener = TcpListener::bind(addr).await?;
-
-        let (sender, mut receiver) = mpsc::unbounded_channel::<(String, oneshot::Sender<String>)>();
-
-        // thread process
-        thread::spawn(move || {
-            while let Some((line, reply)) = receiver.blocking_recv() {
-                let result = match pow(&line) {
-                    Some((hash, nonce)) => format!("{}:{}", hash, nonce),
-                    None => "not found".to_string(),
-                };
-                if let Err(e) = reply.send(result) {
-                    println!("send error: {:?}", e);
-                }
-            }
-        });
-
-        loop {
-            let (stream, addr) = listener.accept().await?;
-            let sender = sender.clone();
-
-            tokio::spawn(async move {
-                let framed = Framed::new(stream, LinesCodec::new());
-                let (mut writer, mut reader) = framed.split();
-                while let Some(Ok(line)) = reader.next().await {
-                    let (reply, reply_receiver) = oneshot::channel();
-                    sender.send((line, reply)).unwrap();
-
-                    if let Ok(v) = reply_receiver.await {
-                        if let Err(e) = writer.send(v).await {
-                            println!("send error: {:?}", e);
-                        }
-                    }
-                }
-                Ok::<_, anyhow::Error>(())
-            });
-        }
-    }
 
     // 简单的 async 方法 @see Future
     async fn write_hello_write_async(name: &'static str) -> Result<()> {
